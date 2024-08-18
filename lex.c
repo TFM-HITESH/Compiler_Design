@@ -19,7 +19,11 @@ void lexicalanalysis(const char *input)
                 buf[j++] = input[i++];
             }
             buf[j] = '\0';
-            if (strcmp(buf, "for") == 0 || strcmp(buf, "int") == 0 || strcmp(buf, "char") == 0 || strcmp(buf, "double") == 0 || strcmp(buf, "return") == 0 || strcmp(buf, "float") == 0 || strcmp(buf, "void") == 0 || strcmp(buf, "continue") == 0 || strcmp(buf, "break") == 0 || strcmp(buf, "goto") == 0 || strcmp(buf, "if") == 0 || strcmp(buf, "register") == 0 || strcmp(buf, "typedef") == 0 || strcmp(buf, "switch") == 0 || strcmp(buf, "do") == 0 || strcmp(buf, "long") == 0 || strcmp(buf, "extern") == 0 || strcmp(buf, "while") == 0 || strcmp(buf, "unsigned") == 0 || strcmp(buf, "short") == 0)
+            if (strcmp(buf, "for") == 0 || strcmp(buf, "int") == 0 || strcmp(buf, "char") == 0 || strcmp(buf, "double") == 0 ||
+                strcmp(buf, "return") == 0 || strcmp(buf, "float") == 0 || strcmp(buf, "void") == 0 || strcmp(buf, "continue") == 0 ||
+                strcmp(buf, "break") == 0 || strcmp(buf, "goto") == 0 || strcmp(buf, "if") == 0 || strcmp(buf, "register") == 0 ||
+                strcmp(buf, "typedef") == 0 || strcmp(buf, "switch") == 0 || strcmp(buf, "do") == 0 || strcmp(buf, "long") == 0 ||
+                strcmp(buf, "extern") == 0 || strcmp(buf, "while") == 0 || strcmp(buf, "unsigned") == 0 || strcmp(buf, "short") == 0)
             {
                 printf("Token - Keyword: %s\n", buf);
             }
