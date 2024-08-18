@@ -11,22 +11,22 @@ int z = 0, i = 0, j = 0, c = 0;
 char a[16], ac[20], stk[15], act[10];
 
 // This Function will check whether
-// the stack contain a production rule
-// which is to be Reduce.
-// Rules can be E->2E2 , E->3E3 , E->4
+// the stack contains a production rule
+// which is to be reduced.
+// Rules can be S->CC , C->cC , C->d
 void check()
 {
     // Copying string to be printed as action
-    strcpy(ac, "REDUCE TO E -> ");
+    strcpy(ac, "REDUCE TO ");
 
-    // c=length of input string
+    // c = length of input string
     for (z = 0; z < c; z++)
     {
-        // checking for producing rule E->4
-        if (stk[z] == '4')
+        // checking for production rule C -> d
+        if (stk[z] == 'd')
         {
-            printf("%s4", ac);
-            stk[z] = 'E';
+            printf("%sC -> d", ac);
+            stk[z] = 'C';
             stk[z + 1] = '\0';
 
             // printing action
@@ -34,33 +34,29 @@ void check()
         }
     }
 
-    for (z = 0; z < c - 2; z++)
+    for (z = 0; z < c - 1; z++)
     {
-        // checking for another production
-        if (stk[z] == '2' && stk[z + 1] == 'E' &&
-            stk[z + 2] == '2')
+        // checking for production rule C -> cC
+        if (stk[z] == 'c' && stk[z + 1] == 'C')
         {
-            printf("%s2E2", ac);
-            stk[z] = 'E';
+            printf("%sC -> cC", ac);
+            stk[z] = 'C';
             stk[z + 1] = '\0';
-            stk[z + 2] = '\0';
             printf("\n$%s\t%s$\t", stk, a);
-            i = i - 2;
+            i = i - 1;
         }
     }
 
-    for (z = 0; z < c - 2; z++)
+    for (z = 0; z < c - 1; z++)
     {
-        // checking for E->3E3
-        if (stk[z] == '3' && stk[z + 1] == 'E' &&
-            stk[z + 2] == '3')
+        // checking for production rule S -> CC
+        if (stk[z] == 'C' && stk[z + 1] == 'C')
         {
-            printf("%s3E3", ac);
-            stk[z] = 'E';
-            stk[z + 1] = '\0';
+            printf("%sS -> CC", ac);
+            stk[z] = 'S';
             stk[z + 1] = '\0';
             printf("\n$%s\t%s$\t", stk, a);
-            i = i - 2;
+            i = i - 1;
         }
     }
     return; // return to main
@@ -69,10 +65,10 @@ void check()
 // Driver Function
 int main()
 {
-    printf("GRAMMAR is -\nE->2E2 \nE->3E3 \nE->4\n");
+    printf("GRAMMAR is -\nS -> CC \nC -> cC \nC -> d\n");
 
-    // a is input string
-    strcpy(a, "32423");
+    // a is the input string
+    strcpy(a, "cdcd");
 
     // strlen(a) will return the length of a to c
     c = strlen(a);
@@ -87,7 +83,7 @@ int main()
     // values of stack and input
     printf("\n$\t%s$\t", a);
 
-    // This will Run upto length of input string
+    // This will run up to the length of the input string
     for (i = 0; j < c; i++, j++)
     {
         // Printing action
@@ -103,22 +99,21 @@ int main()
         // Printing action
         printf("\n$%s\t%s$\t", stk, a);
 
-        // Call check function ..which will
-        // check the stack whether its contain
-        // any production or not
+        // Call check function to check the stack
+        // for any production rules
         check();
     }
 
-    // Rechecking last time if contain
-    // any valid production then it will
-    // replace otherwise invalid
+    // Rechecking one last time if the stack
+    // contains any valid production
     check();
 
-    // if top of the stack is E(starting symbol)
-    // then it will accept the input
-    if (stk[0] == 'E' && stk[1] == '\0')
+    // If the top of the stack is S (starting symbol)
+    // then the input is accepted
+    if (stk[0] == 'S' && stk[1] == '\0')
         printf("Accept\n");
-    else // else reject
+    else // otherwise, reject
         printf("Reject\n");
+
+    return 0;
 }
-// This code is contributed by Ritesh Aggarwal
