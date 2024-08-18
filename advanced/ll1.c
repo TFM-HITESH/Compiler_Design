@@ -1,393 +1,530 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
-void add_symbol(char *, char);
-void FIND_FIRST(char *, char);
-void FIND_FOLLOW(char *, char);
-void FIRST_SHOW();
-void FOLLOW_SHOW();
-int CREATE_LL1_TABLE();
-void PARSING_TABLE_SHOW(int);
-void LL1_PARSER(char *);
+void followfirst(char, int, int);
+void findfirst(char, int, int);
+void follow(char c);
 
-int top = 0;
-int t, nt, ch, cr, count;
-char FIRST[100][100], FOLLOW[100][100];
-char T[100], NT[100], G[100][100], STACK[100];
-int LL1[100][100];
+int count, n = 0;
+char calc_first[10][100];
+char calc_follow[10][100];
+int m = 0;
+char production[10][10], first[10];
+char f[10];
+int k;
+char ck;
+int e;
 
-void main()
+int main(int argc, char **argv)
 {
-    int i, j, flag, fl, ch1;
-    char STR[100];
-    printf("Enter production rules of grammar in the form A->B\n\n");
-    flag = 1;
-    fl = 1;
-    while (flag == 1)
+    int jm = 0;
+    int km = 0;
+    int i, choice;
+    char c, ch;
+    printf("How many productions ? :");
+    scanf("%d", &count);
+    printf("\nEnter %d productions in form A=B where A and B are grammar symbols :\n\n", count);
+    for (i = 0; i < count; i++)
     {
-        printf("\n1) Insert Production Rules\n2) Show Grammar\n3) Exit");
-        printf("\nEnter your choice: ");
-        scanf("%d", &ch1);
-        switch (ch1)
+        scanf("%s%c", production[i], &ch);
+    }
+    int kay;
+    char done[count];
+    int ptr = -1;
+    for (k = 0; k < count; k++)
+    {
+        for (kay = 0; kay < 100; kay++)
         {
-        case 1:
-            printf("Enter number %d rules of grammar: ", cr + 1);
-            scanf("%s", G[cr++]);
-            for (i = 0; i < nt && fl == 1; i++)
+            calc_first[k][kay] = '!';
+        }
+    }
+    int point1 = 0, point2, xxx;
+    for (k = 0; k < count; k++)
+    {
+        c = production[k][0];
+        point2 = 0;
+        xxx = 0;
+        for (kay = 0; kay <= ptr; kay++)
+            if (c == done[kay])
+                xxx = 1;
+        if (xxx == 1)
+            continue;
+        findfirst(c, 0, 0);
+        ptr += 1;
+        done[ptr] = c;
+        printf("\n First(%c)= { ", c);
+        calc_first[point1][point2++] = c;
+        for (i = 0 + jm; i < n; i++)
+        {
+            int lark = 0, chk = 0;
+            for (lark = 0; lark < point2; lark++)
             {
-                if (NT[i] == G[cr - 1][0])
-                    fl = 0;
-            }
-            if (fl == 1)
-                NT[nt++] = G[cr - 1][0];
-            fl = 1;
-            for (i = 3; G[cr - 1][i] != '\0'; i++)
-            {
-                if (!isupper(G[cr - 1][i]) && G[cr - 1][i] != '!')
+                if (first[i] == calc_first[point1][lark])
                 {
-                    for (j = 0; j < t && fl == 1; j++)
+                    chk = 1;
+                    break;
+                }
+            }
+            if (chk == 0)
+            {
+                printf("%c, ", first[i]);
+                calc_first[point1][point2++] = first[i];
+            }
+        }
+        printf("}\n");
+        jm = n;
+        point1++;
+    }
+    printf("\n");
+    printf("-----------------------------------------------\n\n");
+    char donee[count];
+    ptr = -1;
+    for (k = 0; k < count; k++)
+    {
+        for (kay = 0; kay < 100; kay++)
+        {
+            calc_follow[k][kay] = '!';
+        }
+    }
+    point1 = 0;
+    int land = 0;
+    for (e = 0; e < count; e++)
+    {
+        ck = production[e][0];
+        point2 = 0;
+        xxx = 0;
+        for (kay = 0; kay <= ptr; kay++)
+            if (ck == donee[kay])
+                xxx = 1;
+        if (xxx == 1)
+            continue;
+        land += 1;
+        follow(ck);
+        ptr += 1;
+        donee[ptr] = ck;
+        printf(" Follow(%c) = { ", ck);
+        calc_follow[point1][point2++] = ck;
+        for (i = 0 + km; i < m; i++)
+        {
+            int lark = 0, chk = 0;
+            for (lark = 0; lark < point2; lark++)
+            {
+                if (f[i] == calc_follow[point1][lark])
+                {
+                    chk = 1;
+                    break;
+                }
+            }
+            if (chk == 0)
+            {
+                printf("%c, ", f[i]);
+                calc_follow[point1][point2++] = f[i];
+            }
+        }
+        printf(" }\n\n");
+        km = m;
+        point1++;
+    }
+    char ter[10];
+    for (k = 0; k < 10; k++)
+    {
+        ter[k] = '!';
+    }
+    int ap, vp, sid = 0;
+    for (k = 0; k < count; k++)
+    {
+        for (kay = 0; kay < count; kay++)
+        {
+            if (!isupper(production[k][kay]) && production[k][kay] != '#' && production[k][kay] != '=' && production[k][kay] != '\0')
+            {
+                vp = 0;
+                for (ap = 0; ap < sid; ap++)
+                {
+                    if (production[k][kay] == ter[ap])
                     {
-                        if (T[j] == G[cr - 1][i])
-                            fl = 0;
-                    }
-                    if (fl == 1)
-                        T[t++] = G[cr - 1][i];
-                    fl = 1;
-                }
-            }
-            break;
-
-        case 2:
-            if (cr > 0)
-            {
-                printf("\nGrammar");
-                printf("\nStarting symbol is: %c", G[0][0]);
-                printf("\nNon-terminal symbol is: ");
-                for (i = 0; i < nt; i++)
-                    printf("%c  ", NT[i]);
-                printf("\nTerminal symbol is: ");
-                for (i = 0; i < t; i++)
-                    printf("%c  ", T[i]);
-                printf("\nProduction rules: ");
-                for (i = 0; i < cr; i++)
-                    printf("%s  ", G[i]);
-                printf("\n");
-            }
-            else
-            {
-                printf("!enter at least one production rules");
-            }
-            break;
-
-        case 3:
-            flag = 0;
-        }
-    }
-    FIRST_SHOW();
-    FOLLOW_SHOW();
-
-    T[t++] = '$';
-    T[t] = '\0';
-
-    flag = CREATE_LL1_TABLE();
-    PARSING_TABLE_SHOW(flag);
-
-    if (flag == 0)
-    {
-        printf("Enter string for parsing: ");
-        scanf("%s", STR);
-        LL1_PARSER(STR);
-    }
-}
-
-void FIRST_SHOW()
-{
-    int i, j;
-    char arr[100];
-    for (i = 0; i < nt; i++)
-    {
-        arr[0] = '\0';
-        FIND_FIRST(arr, NT[i]);
-        for (j = 0; arr[j] != '\0'; j++)
-        {
-            FIRST[i][j] = arr[j];
-        }
-        FIRST[i][j] = '\0';
-        count = 0;
-    }
-    printf("\nFIRST:\n\n");
-    for (i = 0; i < nt; i++)
-    {
-        printf("FIRST( %c ): { ", NT[i]);
-        for (j = 0; FIRST[i][j + 1] != '\0'; j++)
-            printf(" %c,", FIRST[i][j]);
-        printf(" %c }", FIRST[i][j]);
-        printf("\n");
-    }
-}
-void FOLLOW_SHOW()
-{
-    int i, j;
-    char arr[100];
-    for (i = 0; i < nt; i++)
-    {
-        count = 0;
-        arr[0] = '\0';
-        FIND_FOLLOW(arr, NT[i]);
-        for (j = 0; arr[j] != '\0'; j++)
-        {
-            FOLLOW[i][j] = arr[j];
-        }
-        FOLLOW[i][j] = '\0';
-    }
-    printf("\nFOLLOW:\n\n");
-    for (i = 0; i < nt; i++)
-    {
-        printf("FOLLOW( %c ): { ", NT[i]);
-        for (j = 0; FOLLOW[i][j + 1] != '\0'; j++)
-            printf(" %c,", FOLLOW[i][j]);
-        printf(" %c }", FOLLOW[i][j]);
-        printf("\n");
-    }
-}
-
-void PARSING_TABLE_SHOW(int flag)
-{
-    int i, j;
-    if (flag == 0)
-    {
-        printf("\n\nPredictive Parsing Table:\n\n\t");
-        for (j = 0; j < t; j++)
-        {
-            printf("\t%c\t", T[j]);
-        }
-        printf("\n----------------------------------------------------------------------------------------");
-        printf("\n\n");
-        for (i = 0; i < nt; i++)
-        {
-            printf("%c\t|\t", NT[i]);
-            for (j = 0; j < t; j++)
-            {
-                if (LL1[i][j] != 0)
-                    printf("%s\t\t", G[LL1[i][j] - 1]);
-                else
-                    printf("%c\t\t", '_');
-            }
-            printf("\n\n");
-        }
-    }
-}
-
-void FIND_FIRST(char *arr, char ch)
-{
-    int i;
-    if (!isupper(ch))
-        add_symbol(arr, ch);
-    else
-    {
-        for (i = 0; i < cr; i++)
-        {
-            if (ch == G[i][0])
-            {
-                if (G[i][3] == '!')
-                    add_symbol(arr, G[i][3]);
-                else
-                    FIND_FIRST(arr, G[i][3]);
-            }
-        }
-    }
-}
-
-void FIND_FOLLOW(char arr[], char ch)
-{
-    int i, j, k, l, fl = 1, flag = 1;
-    if (ch == G[0][0])
-        add_symbol(arr, '$');
-    for (i = 0; i < cr; i++)
-    {
-        for (j = 3; G[i][j] != '\0' && flag == 1; j++)
-        {
-            if (ch == G[i][j])
-            {
-                flag = 0;
-                if (G[i][j + 1] != '\0' && isupper(G[i][j + 1]))
-                {
-                    for (k = 0; k < nt; k++)
-                    {
-                        if (NT[k] == G[i][j + 1])
-                        {
-                            for (l = 0; FIRST[k][l] != '\0'; l++)
-                            {
-                                if (FIRST[k][l] != '\0' && FIRST[k][l] != '!')
-                                {
-                                    add_symbol(arr, FIRST[k][l]);
-                                }
-                                if (FIRST[k][l] == '!')
-                                    fl = 0;
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (G[i][j + 1] != '\0' && !isupper(G[i][j + 1]))
-                {
-                    add_symbol(arr, G[i][j + 1]);
-                }
-                if ((G[i][j + 1] == '\0' || fl == 0) && G[i][0] != ch)
-                {
-                    fl = 1;
-                    FIND_FOLLOW(arr, G[i][0]);
-                }
-            }
-        }
-    }
-}
-
-void add_symbol(char *arr, char ch)
-{
-    int i, flag = 0;
-    for (i = 0; arr[i] != '\0'; i++)
-    {
-        if (ch == arr[i])
-        {
-            flag = 1;
-            break;
-        }
-    }
-    if (flag == 0)
-    {
-        arr[count++] = ch;
-        arr[count] = '\0';
-    }
-}
-
-int CREATE_LL1_TABLE()
-{
-    int i, j, k, fl, pos, flag = 0;
-    char arr[100];
-    for (i = 0; i < cr; i++)
-    {
-        arr[0] = '\0';
-        count = 0;
-        FIND_FIRST(arr, G[i][3]);
-        for (j = 0; j < count; j++)
-        {
-            if (arr[j] == '!')
-            {
-                FIND_FOLLOW(arr, G[i][0]);
-                break;
-            }
-        }
-        for (k = 0; k < nt; k++)
-        {
-            if (NT[k] == G[i][0])
-            {
-                pos = k;
-                break;
-            }
-        }
-        for (j = 0; j < count; j++)
-        {
-            if (arr[j] != '!')
-            {
-                for (k = 0; k < t; k++)
-                {
-                    if (arr[j] == T[k])
-                    {
-                        if (LL1[pos][k] > 0)
-                        {
-                            printf("\n\nConflict occur between %s and %s rules!", G[LL1[pos][k] - 1], G[i]);
-                            printf("\nGiven grammar is not LL(1) grammar!\n");
-                            flag = 1;
-                            return flag;
-                        }
-                        else
-                            LL1[pos][k] = i + 1;
+                        vp = 1;
                         break;
                     }
                 }
+                if (vp == 0)
+                {
+                    ter[sid] = production[k][kay];
+                    sid++;
+                }
             }
         }
     }
-    return flag;
-}
-
-void LL1_PARSER(char *STR)
-{
-    int i = 0, j, pos, pos1, n, k;
-
-    STR[strlen(STR)] = '$';
-    STACK[top++] = '$';
-    STACK[top] = G[0][0];
-
-    printf("\nParsing sequence and actions\n\n");
-    printf("STACK\t\t\tINPUT\t\t\tACTION");
-    printf("\n------------------------------------------------------------------------------------\n");
-
-    i = 0;
-    while (STACK[top] != '$')
+    ter[sid] = '$';
+    sid++;
+    printf("\n\t\t\t\t\t\t\t The LL(1) Parsing Table for the above grammer :-");
+    printf("\n\t\t\t\t\t\t\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+    printf("\n\t\t\t=====================================================================================================================\n");
+    printf("\t\t\t\t|\t");
+    for (ap = 0; ap < sid; ap++)
     {
-        for (j = 0; STACK[j] != '\0'; j++)
-            printf("%c  ", STACK[j]);
-        printf("\t\t");
-
-        for (j = i; STR[j] != '\0'; j++)
-            printf("%c  ", STR[j]);
-
-        if (STR[i] == STACK[top])
+        printf("%c\t\t", ter[ap]);
+    }
+    printf("\n\t\t\t=====================================================================================================================\n");
+    char first_prod[count][sid];
+    for (ap = 0; ap < count; ap++)
+    {
+        int destiny = 0;
+        k = 2;
+        int ct = 0;
+        char tem[100];
+        while (production[ap][k] != '\0')
         {
-            printf("\t\tReduced: %c", STACK[top]);
-            STACK[top] = '\0';
-            top = top - 1;
-            i = i + 1;
-        }
-        else
-        {
-            for (j = 0; j < nt; j++)
+            if (!isupper(production[ap][k]))
             {
-                if (STACK[top] == NT[j])
-                {
-                    pos = j;
-                    break;
-                }
-            }
-            for (j = 0; j < t; j++)
-            {
-                if (STR[i] == T[j])
-                {
-                    pos1 = j;
-                    break;
-                }
-            }
-            n = LL1[pos][pos1];
-            if (G[n - 1][3] == '!')
-            {
-                STACK[top] = '\0';
-                top--;
+                tem[ct++] = production[ap][k];
+                tem[ct++] = '_';
+                tem[ct++] = '\0';
+                k++;
+                break;
             }
             else
             {
-                for (j = 3; G[n - 1][j] != '\0'; j++)
-                    k = j;
-                STACK[top] = '\0';
-                for (j = k; j > 2; j--)
-                    STACK[top++] = G[n - 1][j];
-                top--;
+                int zap = 0;
+                int tuna = 0;
+                for (zap = 0; zap < count; zap++)
+                {
+                    if (calc_first[zap][0] == production[ap][k])
+                    {
+                        for (tuna = 1; tuna < 100; tuna++)
+                        {
+                            if (calc_first[zap][tuna] != '!')
+                            {
+                                tem[ct++] = calc_first[zap][tuna];
+                            }
+                            else
+                                break;
+                        }
+                        break;
+                    }
+                }
+                tem[ct++] = '_';
             }
-            printf("\t\tShift: %s", G[n - 1]);
+            k++;
+        }
+        int zap = 0, tuna;
+        for (tuna = 0; tuna < ct; tuna++)
+        {
+            if (tem[tuna] == '#')
+            {
+                zap = 1;
+            }
+            else if (tem[tuna] == '_')
+            {
+                if (zap == 1)
+                {
+                    zap = 0;
+                }
+                else
+                    break;
+            }
+            else
+            {
+                first_prod[ap][destiny++] = tem[tuna];
+            }
+        }
+    }
+    char table[land][sid + 1];
+    ptr = -1;
+    for (ap = 0; ap < land; ap++)
+    {
+        for (kay = 0; kay < (sid + 1); kay++)
+        {
+            table[ap][kay] = '!';
+        }
+    }
+    for (ap = 0; ap < count; ap++)
+    {
+        ck = production[ap][0];
+        xxx = 0;
+        for (kay = 0; kay <= ptr; kay++)
+            if (ck == table[kay][0])
+                xxx = 1;
+        if (xxx == 1)
+            continue;
+        else
+        {
+            ptr = ptr + 1;
+            table[ptr][0] = ck;
+        }
+    }
+    for (ap = 0; ap < count; ap++)
+    {
+        int tuna = 0;
+        while (first_prod[ap][tuna] != '\0')
+        {
+            int to, ni = 0;
+            for (to = 0; to < sid; to++)
+            {
+                if (first_prod[ap][tuna] == ter[to])
+                {
+                    ni = 1;
+                }
+            }
+            if (ni == 1)
+            {
+                char xz = production[ap][0];
+                int cz = 0;
+                while (table[cz][0] != xz)
+                {
+                    cz = cz + 1;
+                }
+                int vz = 0;
+                while (ter[vz] != first_prod[ap][tuna])
+                {
+                    vz = vz + 1;
+                }
+                table[cz][vz + 1] = (char)(ap + 65);
+            }
+            tuna++;
+        }
+    }
+    for (k = 0; k < sid; k++)
+    {
+        for (kay = 0; kay < 100; kay++)
+        {
+            if (calc_first[k][kay] == '!')
+            {
+                break;
+            }
+            else if (calc_first[k][kay] == '#')
+            {
+                int fz = 1;
+                while (calc_follow[k][fz] != '!')
+                {
+                    char xz = production[k][0];
+                    int cz = 0;
+                    while (table[cz][0] != xz)
+                    {
+                        cz = cz + 1;
+                    }
+                    int vz = 0;
+                    while (ter[vz] != calc_follow[k][fz])
+                    {
+                        vz = vz + 1;
+                    }
+                    table[k][vz + 1] = '#';
+                    fz++;
+                }
+                break;
+            }
+        }
+    }
+    for (ap = 0; ap < land; ap++)
+    {
+        printf("\t\t\t   %c\t|\t", table[ap][0]);
+        for (kay = 1; kay < (sid + 1); kay++)
+        {
+            if (table[ap][kay] == '!')
+                printf("\t\t");
+            else if (table[ap][kay] == '#')
+                printf("%c=#\t\t", table[ap][0]);
+            else
+            {
+                int mum = (int)(table[ap][kay]);
+                mum -= 65;
+                printf("%s\t\t", production[mum]);
+            }
         }
         printf("\n");
+        printf("\t\t\t---------------------------------------------------------------------------------------------------------------------");
+        printf("\n");
     }
-    for (j = 0; STACK[j] != '\0'; j++)
-        printf("%c  ", STACK[j]);
-    printf("\t\t");
+    int j;
+    printf("\n\nPlease enter the desired INPUT STRING = ");
+    char input[100];
+    scanf("%s%c", input, &ch);
+    printf("\n\t\t\t\t\t===========================================================================\n");
+    printf("\t\t\t\t\t\tStack\t\t\tInput\t\t\tAction");
+    printf("\n\t\t\t\t\t===========================================================================\n");
+    int i_ptr = 0, s_ptr = 1;
+    char stack[100];
+    stack[0] = '$';
+    stack[1] = table[0][0];
+    while (s_ptr != -1)
+    {
+        printf("\t\t\t\t\t\t");
+        int vamp = 0;
+        for (vamp = 0; vamp <= s_ptr; vamp++)
+        {
+            printf("%c", stack[vamp]);
+        }
+        printf("\t\t\t");
+        vamp = i_ptr;
+        while (input[vamp] != '\0')
+        {
+            printf("%c", input[vamp]);
+            vamp++;
+        }
+        printf("\t\t\t");
+        char her = input[i_ptr];
+        char him = stack[s_ptr];
+        s_ptr--;
+        if (!isupper(him))
+        {
+            if (her == him)
+            {
+                i_ptr++;
+                printf("POP ACTION\n");
+            }
+            else
+            {
+                printf("\nString Not Accepted by LL(1) Parser !!\n");
+                exit(0);
+            }
+        }
+        else
+        {
+            for (i = 0; i < sid; i++)
+            {
+                if (ter[i] == her)
+                    break;
+            }
+            char produ[100];
+            for (j = 0; j < land; j++)
+            {
+                if (him == table[j][0])
+                {
+                    if (table[j][i + 1] == '#')
+                    {
+                        printf("%c=#\n", table[j][0]);
+                        produ[0] = '#';
+                        produ[1] = '\0';
+                    }
+                    else if (table[j][i + 1] != '!')
+                    {
+                        int mum = (int)(table[j][i + 1]);
+                        mum -= 65;
+                        strcpy(produ, production[mum]);
+                        printf("%s\n", produ);
+                    }
+                    else
+                    {
+                        printf("\nString Not Accepted by LL(1) Parser !!\n");
+                        exit(0);
+                    }
+                }
+            }
+            int le = strlen(produ);
+            le = le - 1;
+            if (le == 0)
+            {
+                continue;
+            }
+            for (j = le; j >= 2; j--)
+            {
+                s_ptr++;
+                stack[s_ptr] = produ[j];
+            }
+        }
+    }
+    printf("\n\t\t\t=======================================================================================================================\n");
+    if (input[i_ptr] == '\0')
+    {
+        printf("\t\t\t\t\t\t\t\tYOUR STRING HAS BEEN ACCEPTED !!\n");
+    }
+    else
+        printf("\n\t\t\t\t\t\t\t\tYOUR STRING HAS BEEN REJECTED !!\n");
+    printf("\t\t\t=======================================================================================================================\n");
+}
 
-    for (j = i; STR[j] != '\0'; j++)
-        printf("%c  ", STR[j]);
+void follow(char c)
+{
+    int i, j;
+    if (production[0][0] == c)
+    {
+        f[m++] = '$';
+    }
+    for (i = 0; i < 10; i++)
+    {
+        for (j = 2; j < 10; j++)
+        {
+            if (production[i][j] == c)
+            {
+                if (production[i][j + 1] != '\0')
+                {
+                    followfirst(production[i][j + 1], i, (j + 2));
+                }
+                if (production[i][j + 1] == '\0' && c != production[i][0])
+                {
+                    follow(production[i][0]);
+                }
+            }
+        }
+    }
+}
 
-    printf("\n");
-    if (STACK[top] == '$' && STR[i] == '$')
-        printf("\nParsing successfully\n");
+void findfirst(char c, int q1, int q2)
+{
+    int j;
+    if (!(isupper(c)))
+    {
+        first[n++] = c;
+    }
+    for (j = 0; j < count; j++)
+    {
+        if (production[j][0] == c)
+        {
+            if (production[j][2] == '#')
+            {
+                if (production[q1][q2] == '\0')
+                    first[n++] = '#';
+                else if (production[q1][q2] != '\0' && (q1 != 0 || q2 != 0))
+                {
+                    findfirst(production[q1][q2], q1, (q2 + 1));
+                }
+                else
+                    first[n++] = '#';
+            }
+            else if (!isupper(production[j][2]))
+            {
+                first[n++] = production[j][2];
+            }
+            else
+            {
+                findfirst(production[j][2], j, 3);
+            }
+        }
+    }
+}
+
+void followfirst(char c, int c1, int c2)
+{
+    int k;
+    if (!(isupper(c)))
+        f[m++] = c;
+    else
+    {
+        int i = 0, j = 1;
+        for (i = 0; i < count; i++)
+        {
+            if (calc_first[i][0] == c)
+                break;
+        }
+        while (calc_first[i][j] != '!')
+        {
+            if (calc_first[i][j] != '#')
+            {
+                f[m++] = calc_first[i][j];
+            }
+            else
+            {
+                if (production[c1][c2] == '\0')
+                {
+                    follow(production[c1][0]);
+                }
+                else
+                {
+                    followfirst(production[c1][c2], c1, c2 + 1);
+                }
+            }
+            j++;
+        }
+    }
 }
